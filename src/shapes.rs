@@ -48,25 +48,47 @@ impl Sphere {
 
 impl Hittable for Sphere {
     fn did_hit(&self, ray: &Ray, t_min: f32, t_max: f32) -> (bool, HitRecord) {
-        let sphere_center = self.get_center();
-        let sphere_radius = self.get_radius();
 
-        let normal = ray.origin - sphere_center;
+        // Solving this equation for t will tell us
+        // if the ray has hit the surface of a sphere...
+        //
+        // dot( (A +t *B - C), (A + t * B - C) = R * R
+        // where A + t*B is the inputted ray
+        // C is the Center of the sphere
+        // R is the radius of the sphere
+        // A is the ray origin
+        // B is the ray direction
+        // After some algebra, this formula becomes...
+        // t * t * dot(B, B) + 2*t*dot(B, A - C) + dot (A -C, A - C) - R * R = 0
+        // we'll use the quadratic formula to determine if the ray hits the sphere 0, 1 or >1 times
+
+        // components of the sphere
+        let C = self.get_center();
+        let R = self.get_radius();
+
+        // components of the ray
+        let A = ray.origin;
+        let B = ray.direction;
+
+        let A_minus_C = A - C;
 
         // 0 = ax^2 + bx + c
-        let a = math::dot(&(ray.direction), &(ray.direction));
-        let b = 2.0 * math::dot(&normal, &(ray.direction));
-        let c = math::dot(&normal, &normal) - sphere_radius * sphere_radius;
+        let a = math::dot(&(B), &(B));
+        let b = 2.0 * math::dot(&A_minus_C, &(B));
+        let c = math::dot(&A_minus_C, &A_minus_C) - R * R;
+
+        // Solving for t
+        // t = (-b +- sqrt(b^2 - 4ac)) / 2a
+
 
         // part under the sqrt in the quadratic formula
         let discriminate = b * b - 4.0 * a * c;
-
 
         if discriminate > 0.0 {
             let t_minus = (-b - discriminate.sqrt()) / (2.0 * a);
             if t_minus > t_min && t_minus < t_max {
                 let point_at_t = ray.get_point_at_time(t_minus);
-                let normal_at_point = (point_at_t - sphere_center) / sphere_radius;
+                let normal_at_point = (point_at_t - C) / R;
 
                 let hit_record = HitRecord::new(t_minus, point_at_t, normal_at_point);
                 return (true, hit_record)
@@ -75,7 +97,7 @@ impl Hittable for Sphere {
             let t_plus = (-b + discriminate.sqrt()) / (2.0 * a);
             if t_plus > t_min && t_plus < t_max {
                 let point_at_t = ray.get_point_at_time(t_plus);
-                let normal_at_point = (point_at_t - sphere_center) / sphere_radius;
+                let normal_at_point = (point_at_t - C) / R;
 
                 let hit_record = HitRecord::new(t_minus, point_at_t, normal_at_point);
                 return (true, hit_record)

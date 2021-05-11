@@ -18,6 +18,13 @@ pub struct Ray {
 }
 
 impl Ray {
+    pub fn new(origin: Vector3, direction: Vector3) -> Ray {
+        Ray {
+            origin,
+            direction
+        }
+    }
+
     pub fn get_origin(&self) -> Vector3 {
         self.origin
     }
@@ -78,7 +85,7 @@ impl Vector3 {
     }
 
     pub fn squared_length(&self) -> f32 {
-        (&self.values[0]).powi(2) + (&self.values[1]).powi(2) + (&self.values[2]).powi(2)
+        &self.values[0] * &self.values[0] + &self.values[1] * &self.values[1] + &self.values[2] * &self.values[2]
     }
 
     pub fn make_unit_vector(&mut self) {
