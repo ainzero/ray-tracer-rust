@@ -47,6 +47,8 @@ impl HitRecord {
     pub fn get_t(&self) -> f32 {
         self.t_at_point
     }
+
+    pub fn get_point(&self) -> Vector3 { self.point }
 }
 
 pub struct HittableList {
