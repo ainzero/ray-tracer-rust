@@ -48,7 +48,6 @@ impl Sphere {
 
 impl Hittable for Sphere {
     fn did_hit(&self, ray: &Ray, t_min: f32, t_max: f32) -> (bool, HitRecord) {
-
         // Solving this equation for t will tell us
         // if the ray has hit the surface of a sphere...
         //
@@ -79,7 +78,6 @@ impl Hittable for Sphere {
 
         // Solving for t
         // t = (-b +- sqrt(b^2 - 4ac)) / 2a
-
 
         // part under the sqrt in the quadratic formula
         let discriminate = b * b - 4.0 * a * c;

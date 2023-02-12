@@ -41,21 +41,17 @@ fn get_color_at_pixel(r: &Ray, scene: &HittableList, rng: &mut ThreadRng) -> RGB
 
     if did_hit {
         // TODO(Z): How does this change over time? why 1.0?
-        // dbg!(record.get_normal().x(),record.get_normal().y(),record.get_normal().z());
 
         let target: Vector3 = record.get_point() + record.get_normal() + get_random_in_unit_sphere(rng);
-        //dbg!(target);
         return get_color_at_pixel( &Ray::new(record.get_point(), target - record.get_point()), scene, rng) * 0.5
-        //return RGB::new(record.get_normal().x() + 1.0, record.get_normal().y() + 1.0, record.get_normal().z() + 1.0) * 0.5;
     } else {
 
         // linear interpolation between white and blue
         // blended_value = (1 - t) * start_value + t * end_value
-        //dbg!(r.direction);
         let unit_direction = math::unit_vector(r.direction);
-        //dbg!(unit_direction);
+
         let t = 0.5 * (unit_direction.y() + 1.0);
-        //dbg!(t);
+
         RGB::new(1.0, 1.0, 1.0) * (1.0 - t) + RGB::new(0.5, 0.7, 1.0) * t
     }
 }
@@ -82,29 +78,33 @@ fn prepare_image(mut image: &File, height: u32, width: u32) {
 fn main() -> std::io::Result<()> {
     let image =  File::create("foo.ppm")?;
 
-    let image_width = 400;
-    let image_height = 200;
-    let max_samples = 100;
+    let aspect_ratio = 16.0 / 9.0;
+    let image_width = 800;
+    let image_height = ((image_width as f32) / aspect_ratio) as u32;
+    let max_samples = 50;
     
     prepare_image(&image, image_height, image_width);
 
-    let camera = Camera::centered_in_plane_with_height_and_width(2.0, 4.0);
+    let viewport_height = 2.0;
+    let viewport_width = viewport_height / aspect_ratio;
+    let camera = Camera::centered_in_plane_with_height_and_width(viewport_height, viewport_width);
 
     // Objects in the scene
     let mut scene = HittableList::new(2);
-    //scene.add(Sphere::new(Vector3::new(0.0,0.0,-0.0),0.25));
+
     scene.add(Sphere::new(Vector3::new(0.0,0.0,-1.0),0.5));
     scene.add(Sphere::new(Vector3::new(0.0,-100.5,-1.0),100.0));
 
     let mut random_number_generator = rand::thread_rng();
 
     let mut row_counter = 0;
+
     for j in (0..image_height - 1).rev() {
+       
         for i in 0..image_width {
 
-
             let mut color_at_pixel = RGB::empty_new();
-            for k in 0..max_samples {
+            for _k in 0..max_samples {
                 // u and v are bounded between 0 and 1
                 let random_val_one: f32 = random_number_generator.gen();
                 let random_val_two: f32 = random_number_generator.gen();
@@ -123,7 +123,6 @@ fn main() -> std::io::Result<()> {
            
         }
         row_counter += 1;
-        println!("{} \r", (row_counter as f32 / image_height as f32) * 100.00);
     }
 
 

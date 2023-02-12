@@ -28,12 +28,16 @@ struct Plane {
     lower_left_corner: Vector3,
 }
 impl Plane {
-    fn with_height_and_width(height: f32, width: f32) -> Plane {
+    fn with_height_and_width(viewport_height: f32, viewport_width: f32) -> Plane {
+        let height = Vector3::new(0.0,viewport_height, 0.0);
+        let width = Vector3::new(viewport_width, 0.0, 0.0);  
+        let origin = Vector3::new(0.0,0.0,0.0);
+
         Plane {
-            height: Vector3::new(0.0,height, 0.0),
-            width: Vector3::new(width, 0.0, 0.0),
-            origin: Vector3::new(0.0,0.0,0.0),
-            lower_left_corner: Vector3::new(width / -2.0, height / -2.0, -1.0)
+            height,
+            width,
+            origin,
+            lower_left_corner: origin - (width / 2.0) - (height / 2.0) - Vector3::new(0.0, 0.0,1.0)
         }
     }
     fn get_height(&self) -> &Vector3 {
